@@ -1,0 +1,36 @@
+{
+    "development": {
+        "username": "root",
+        "password": "wzs#3309",
+        "database": "anjuke",
+        "host": "101.132.116.192",
+        "port": "33306",
+        "dialect": "mysql",
+        "pool": {
+            "max": 10,
+            "min": 1,
+            "idle": 10000
+        },
+        "timezone": "+08:00",
+        "define": {
+            "timestamps": false
+        }
+    },
+    "production": {
+        "username": "root",
+        "password": "wzs#3309",
+        "database": "anjuke",
+        "host": "101.132.116.192",
+        "port": "33306",
+        "dialect": "mysql",
+        "pool": {
+            "max": 10,
+            "min": 1,
+            "idle": 10000
+        },
+        "timezone": "+08:00",
+        "define": {
+            "timestamps": false
+        }
+    }
+}
