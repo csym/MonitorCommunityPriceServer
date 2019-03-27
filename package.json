@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "precommit": "lint-staged",
-    "start": "cross-env PORT=3001 nodemon ./bin/www --exec babel-node",
+    "start": "cross-env PORT=3002 nodemon ./bin/www --exec babel-node",
     "models": "sequelize-auto -o models -d anjuke -h 101.132.116.192 -u root -p 33306 -x wzs#3309 -e mysql",
     "models:fix": "eslint --fix --ext .js models",
     "lint": "eslint --ext .js bin config constant dao routes util",
