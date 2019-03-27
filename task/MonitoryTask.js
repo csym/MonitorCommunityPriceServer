@@ -1,76 +1,96 @@
 import { getLogger } from 'log4js';
 import CommunityPriceDayDao from '../dao/CommunityPriceDayDao';
-// const moment = require('moment');
+import CommunityPriceMonDao from '../dao/CommunityPriceMonDao';
+import CommunityMonitorDao from '../dao/CommunityMonitorDao';
+
+const moment = require('moment');
 
 const log = getLogger('task/MonitoryTask');
 const superagent = require('superagent');
-const cheerio = require('cheerio');
+// const cheerio = require('cheerio');
 
-const pages = [
-  { url: 'https://shanghai.anjuke.com/community/view/118522', name: '繁荣安居', aid: '118522' },
-  // { url: 'https://shanghai.anjuke.com/community/view/610707', name: '繁荣华庭', aid: '610707' },
-];
+// const pages = [
+//   { url: 'https://shanghai.anjuke.com/community/view/118522', name: '繁荣安居', aid: '118522' },
+//   { url: 'https://shanghai.anjuke.com/community/view/610707', name: '繁荣华庭', aid: '610707' },
+// ];
 
-const getCommunityPriceDay = () => {
+const spiderCommunityPrice = async () => {
   log.info('getCommunityPriceDay begin');
-  pages.forEach((item) => {
+  const lists = await CommunityMonitorDao.findAllMonitoryCommunity();
+  console.log(`all monitor community ${JSON.stringify(lists)}`);
+  lists.forEach(async (item) => {
     // const { url } = item;
-    getComView(item);
-  });
-};
-
-const getCommunityPriceMon = () => {
-  log.info('getCommunityPriceMon begin');
-  const a = [];
-  return a;
-};
-
-const getComView = (item) => {
-  console.log(`getComurl: ${item.url}`);
-  superagent.get(item.url).end((err, res) => {
-    if (err) {
-      // 如果访问失败或者出错，会这行这里
-      console.log(`获取信息失败 - ${err} ${url}`);
-    } else {
-      // 访问成功，请求http://news.baidu.com/页面所返回的数据会包含在res
-      console.log('get response suc');
-      console.log(`res: ${res.text}`);
-      // const $ = cheerio.load(res.text);
-      // $('.average').each((i, elem) => {
-      //   const price = $(this).text();
-      //   console.log(`${price}`);
-      // });
-
-      const str = res.text;
-      const pos1 = str.indexOf('data : {');
-      const newStr = str.substr(pos1 + 7, str.length - pos1 - 7);
-      console.log(`pos1 ${pos1}`);
-      const pos2 = newStr.indexOf('ajaxUrl');
-      console.log(`pos2 ${pos2}`);
-      const newStr2 = newStr.substr(0, pos2 - 14);
-      console.log(`res: ${newStr2}`);
-
-      const priceObj = JSON.parse(newStr2);
-
-      //写入信息到日表
-      const info = {};
-      info.name = item.name;
-      info.aid = item.aid;
-      //info.sumday = moment().format('YYYYMMDD');
-      info.price = priceObj.comm_midprice;
-      info.trend = priceObj.comm_midchange;
-      CommunityPriceDayDao.insertCommunityPrice(info);
-
-      //写入信息到月表中
-
-      const { community } = priceObj;
-      console.log(community.length);
-      console.log(community);
+    log.info(`get page info begin, name:${item.name}`);
+    const priceData = await getComView(item);
+    log.info(`get page priceData:${priceData}`);
+    if (priceData) {
+      const writeDayRes = await writePriceDay(priceData, item);
+      log.info(`get page writeRes:${JSON.stringify(writeDayRes)}`);
+      const writeMonRes = await writePriceMon(priceData, item);
+      log.info(`get page writeRes:${JSON.stringify(writeMonRes)}`);
     }
+    log.info(`get page info end, name:${item.name}`);
   });
+};
+
+const getComView = async (item) => {
+  console.log(`getComurl: ${item.url}`);
+
+  const info = await new Promise((resolve) => {
+    superagent.get(item.url).end(async (err, res) => {
+      if (err) {
+        // 如果访问失败或者出错，会这行这里
+        log.error(`获取信息失败 - ${err} ${item.url}`);
+        resolve(null);
+      } else {
+        // 访问成功，请求http://news.baidu.com/页面所返回的数据会包含在res
+        const str = res.text;
+        const pos1 = str.indexOf('data : {');
+        if (pos1 > 0) {
+          const newStr = str.substr(pos1 + 7, str.length - pos1 - 7);
+          const pos2 = newStr.indexOf('ajaxUrl');
+          if (pos2 > 0) {
+            const newStr2 = newStr.substr(0, pos2 - 14);
+            // console.log(`res: ${newStr2}`);
+            resolve(newStr2);
+          } else {
+            log.error(`获取信息失败 - ${pos2} ${item.url}`);
+            resolve(null);
+          }
+        } else {
+          log.error(`获取信息失败 - ${pos1} ${item.url}`);
+          resolve(null);
+        }
+      }
+    });
+  });
+  return info;
+};
+
+const writePriceDay = async (priceData, communityInfo) => {
+  const priceObj = JSON.parse(priceData);
+
+  // 写入信息到日表
+  const info = {};
+  info.name = communityInfo.name;
+  info.aid = communityInfo.aid;
+  info.sumday = moment().format('YYYYMMDD');
+  info.price = priceObj.comm_midprice;
+  info.trend = priceObj.comm_midchange;
+  const res = await CommunityPriceDayDao.insertCommunityPrice(info);
+  return res;
+};
+
+const writePriceMon = async (priceData, communityInfo) => {
+  // 写入信息到日表
+  const info = {};
+  info.name = communityInfo.name;
+  info.aid = communityInfo.aid;
+  info.communityprice = priceData;
+  const res = await CommunityPriceMonDao.insertCommunityPrice(info);
+  return res;
 };
 
 export default {
-  getCommunityPriceDay,
-  getCommunityPriceMon,
+  spiderCommunityPrice,
 };

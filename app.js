@@ -1,6 +1,5 @@
-// import MonitoryTask from './task/MonitoryTask';
+import MonitoryTask from './task/MonitoryTask';
 
-const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
@@ -47,7 +46,10 @@ app.use('/monitor', monitorRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
-  next(createError(404));
+  // next(createError(404));
+  const err = new Error('Not Found');
+  err.status = 404;
+  next(err);
 });
 
 // error handler
@@ -62,16 +64,10 @@ app.use((err, req, res) => {
 });
 
 
-schedule.scheduleJob('30 2 * * * *', () => {
-  console.log('MonitoryTask getCommunityPriceDay begin!');
-  log.info('MonitoryTask getCommunityPriceDay begin');
-  // MonitoryTask.getCommunityPriceDay();
-});
-
-schedule.scheduleJob('1 2 * * * *', () => {
-  console.log('MonitoryTask getCommunityPriceMon begin!');
-  log.info('MonitoryTask getCommunityPriceMon begin');
-  // MonitoryTask.getCommunityPriceMon();
+schedule.scheduleJob('30 0 1 * * *', async () => {
+  log.info('MonitoryTask spiderCommunityPrice begin');
+  await MonitoryTask.spiderCommunityPrice();
+  log.info('MonitoryTask spiderCommunityPrice end');
 });
 
 module.exports = app;

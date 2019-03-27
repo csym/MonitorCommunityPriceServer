@@ -29,10 +29,10 @@ module.exports = function (sequelize, DataTypes) {
       allowNull: true,
     },
     trend: {
-      type: DataTypes.STRING(8),
+      type: DataTypes.STRING(24),
       allowNull: true,
     },
-    createdate: {
+    createtime: {
       type: DataTypes.DATE,
       allowNull: true,
     },
