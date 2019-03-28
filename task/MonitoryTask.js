@@ -16,9 +16,10 @@ const superagent = require('superagent');
 
 const spiderCommunityPrice = async () => {
   log.info('getCommunityPriceDay begin');
-  const lists = await CommunityMonitorDao.findAllMonitoryCommunity();
-  console.log(`all monitor community ${JSON.stringify(lists)}`);
-  lists.forEach(async (item) => {
+  const data = await CommunityMonitorDao.findAllMonitoryCommunity();
+  const { list } = data;
+  console.log(`all monitor community ${JSON.stringify(list)}`);
+  list.forEach(async (item) => {
     // const { url } = item;
     log.info(`get page info begin, name:${item.name}`);
     const priceData = await getComView(item);

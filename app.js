@@ -11,6 +11,8 @@ const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const loginRouter = require('./routes/login');
 const monitorRouter = require('./routes/monitor');
+const dispatchRouter = require('./routes/dispatch');
+
 const passport = require('./utils/passport').default;
 const schedule = require('node-schedule');
 
@@ -42,6 +44,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/login', loginRouter);
 app.use('/monitor', monitorRouter);
+app.use('/dispatch', dispatchRouter);
 
 
 // catch 404 and forward to error handler
@@ -64,7 +67,7 @@ app.use((err, req, res) => {
 });
 
 
-schedule.scheduleJob('30 0 1 * * *', async () => {
+schedule.scheduleJob('30 0 12 * * *', async () => {
   log.info('MonitoryTask spiderCommunityPrice begin');
   await MonitoryTask.spiderCommunityPrice();
   log.info('MonitoryTask spiderCommunityPrice end');

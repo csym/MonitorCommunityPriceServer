@@ -11,7 +11,10 @@ async function findAllMonitoryCommunity() {
       raw: true,
       logging: sql => log.debug('[findAllMonitoryCommunity] - ', sql),
     });
-    return lists;
+    const res = {};
+    res.list = lists;
+    res.pagination = { total: lists.length, pageSize: 10, current: 1 };
+    return res;
   } catch (error) {
     log.error(`findAllMonitoryCommunity error ${JSON.stringify(error)}`);
   }
