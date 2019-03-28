@@ -67,7 +67,13 @@ app.use((err, req, res) => {
 });
 
 
-schedule.scheduleJob('30 0 12 * * *', async () => {
+schedule.scheduleJob('30 0 9 * * *', async () => {
+  log.info('MonitoryTask spiderCommunityPrice begin');
+  await MonitoryTask.spiderCommunityPrice();
+  log.info('MonitoryTask spiderCommunityPrice end');
+});
+
+schedule.scheduleJob('30 0 14 * * *', async () => {
   log.info('MonitoryTask spiderCommunityPrice begin');
   await MonitoryTask.spiderCommunityPrice();
   log.info('MonitoryTask spiderCommunityPrice end');
