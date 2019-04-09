@@ -29,8 +29,9 @@ const strategy = new Strategy(jwtOptions, ((req, jwtPayload, next) => {
 passport.use(strategy);
 
 function login(req, res) {
-  const { username, password } = req.body;
-  userInfoDao.getUser(username)
+  log.info(`login body ${JSON.stringify(req.body)}`);
+  const { userName, password } = req.body;
+  userInfoDao.getUser(userName)
     .then((user) => {
       if (!user) {
         res.json({
@@ -53,7 +54,7 @@ function login(req, res) {
           id: user.id,
           name: user.username,
           token,
-          privilege: user.privilege,
+          currentAuthority: user.currentAuthority,
         });
       }
     });

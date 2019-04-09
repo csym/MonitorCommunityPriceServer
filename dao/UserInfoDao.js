@@ -40,8 +40,8 @@ async function getUser(username) {
       log.warn('[getUser Warn] - Wrong username: ', username);
       return null;
     }
-    const privilege = 'test';
-    userInfo.privilege = privilege;
+    const currentAuthority = 'user';
+    userInfo.currentAuthority = currentAuthority;
     return userInfo;
   } catch (e) {
     log.error('[getUser] - Error:', e);
