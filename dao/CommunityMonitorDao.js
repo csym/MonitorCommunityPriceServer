@@ -7,7 +7,7 @@ async function findAllMonitoryCommunity(info) {
   try {
     const filter = {};
     filter.validflag = 1;
-    if (info.city) {
+    if (info && info.city) {
       filter.city = info.city;
     }
 
